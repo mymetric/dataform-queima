@@ -1,0 +1,115 @@
+config {
+  type: "incremental",
+  schema: "dataform_granular",
+  bigquery: {
+    partitionBy: "date"
+  }
+}
+
+pre_operations {
+
+  declare max_date default (
+  
+    ${when(incremental(),
+        `SELECT max(date) FROM ${self()}`,
+        `cast("2023-03-12" as date)`
+    )}
+  
+  );
+
+}
+
+
+with
+
+json as (
+
+SELECT
+
+  date,
+  datetime(timestamp_millis(timestamp), "America/Sao_Paulo") datetime,
+
+  --order
+  JSON_EXTRACT_SCALAR(body, '$.id_pedido') AS order_id,
+  coalesce(
+    JSON_EXTRACT_SCALAR(body, '$.status'),
+    JSON_EXTRACT_SCALAR(body, '$.motivo_cancelamento')
+  ) AS status,
+  JSON_EXTRACT_SCALAR(body, '$.valor_total') AS revenue,
+  
+  --client
+  JSON_EXTRACT_SCALAR(body, '$.email_usuario') AS email,
+  JSON_EXTRACT_SCALAR(body, '$.telefone_usuario') AS phone,
+
+  --cookies
+  coalesce(
+    JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.mmTracker.client_id'),
+    JSON_EXTRACT_SCALAR(body, '$.client_id')
+  ) user_pseudo_id,
+  safe_cast(coalesce(
+    JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.mmTracker.session_id'),
+    split(JSON_EXTRACT_SCALAR(body, '$.session_id'), ".")[safe_offset(2)]
+  ) as int64) ga_session_id,
+  coalesce(
+    JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.mmTracker.fbp'),
+    JSON_EXTRACT_SCALAR(body, '$.fpp')
+  ) fbp,
+  coalesce(
+    JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.mmTracker.fbc'),
+    JSON_EXTRACT_SCALAR(body, '$.fpc')
+  ) fbc,
+
+  JSON_EXTRACT_SCALAR(body, '$.ip') AS ip,
+  JSON_EXTRACT_SCALAR(body, '$.page_location') AS page_location,
+  JSON_EXTRACT_SCALAR(body, '$.user_agent') AS user_agent,
+  -- JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.mmTracker.ua') AS produtos_pedido_mmTracker_ua,
+  
+  --product  
+  JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.id_produto') AS product_id,
+  JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.nome_produto') AS product_name,
+  JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.quantidade') AS product_quantity,
+  JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.valor_unitario') AS product_price,
+
+  body
+
+FROM `gtm-m5vtn5l-otmyn.queima_diaria.orders_raw_`
+
+WHERE
+  
+  date <> current_date("America/Sao_Paulo")
+  and date > max_date
+
+order by timestamp desc
+
+),
+
+dedup as (
+
+select
+
+  * except(row_no)
+
+from (
+
+  select
+
+    row_number() over (partition by order_id,status order by datetime desc) AS row_no,
+    *
+
+  from json
+
+)
+
+where row_no = 1
+
+order by datetime desc
+
+)
+
+select
+
+*
+
+from dedup
+
+

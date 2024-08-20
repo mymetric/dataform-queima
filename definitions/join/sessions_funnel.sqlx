@@ -1,0 +1,286 @@
+config {
+  type: "table",
+  schema: "dataform_join",
+  bigquery: {
+    partitionBy: "event_date"
+  }
+}
+
+with
+
+purchases as (
+
+SELECT
+
+user_pseudo_id,
+ga_session_id,
+count(1) transactions,
+sum(safe_cast(revenue as float64)) revenue
+
+FROM ${ref("orders")}
+
+where
+
+status = "success"
+
+group by all
+
+order by ga_session_id desc
+
+
+),
+
+
+
+
+sessions_purchases as (
+
+select
+
+a.*,
+b.* except(user_pseudo_id, ga_session_id)
+
+from ${ref("sessions")} a
+
+left join purchases b on a.user_pseudo_id = b.user_pseudo_id and a.ga_session_id = b.ga_session_id
+
+),
+
+
+
+
+sessions_purchases_utms as (
+
+select
+    
+    a.* except(medium, source, campaign),
+    coalesce(b.description, a.medium, "direto") medium,
+    coalesce(c.description, a.source, "direto") source,
+    coalesce(d.description, a.campaign, "(not set)") campaign
+
+from sessions_purchases a
+left join `analytics_granular.utm_codes_medium` b on a.medium = b.code
+left join `analytics_granular.utm_codes_source` c on a.source = c.code
+left join `analytics_granular.utm_codes_campaign` d on a.campaign = d.code
+
+)
+
+
+
+
+select
+
+*,
+CASE
+
+  -- Queima Diária
+  WHEN REGEXP_CONTAINS(page_location, "(^http(s|)://(www.|)queimadiaria.com(|.br)/)$") THEN "Queima Diária"
+  WHEN REGEXP_CONTAINS(page_location, "www.queimadiaria.com(/exercicios-em-casa|/transforme-sua-vida|/mp|/planos|/sete-reais|/garantia|/um-real|/missaofitness/7-reais|/pacote-completo|/como-funciona|/homens|/resultado|/treino-para-iniciantes|/tiktok|/dia-das-maes|/maes|/qfvip|queima-friday|/native|/desafio|/consumidor|/iniciante|/perder-peso|/perder-barriga|/exercicios-para-emagrecer|/aerobika|/u|/zumba|/pilates|/agatha|/massa-magra|/obrigado|/boleto-gerado|/compra-aprovada|/ebook|/deborah)") THEN "Queima Diária"
+  WHEN REGEXP_CONTAINS(page_location, "(131|199|191|299|112|126|345|349|109|332|192|279|264|251|379|380)") THEN "Queima Diária"
+  WHEN REGEXP_CONTAINS(page_location, "queimadiaria.com.br/(quiz|acesso)") THEN "Queima Diária"
+  WHEN REGEXP_CONTAINS(page_location, "(queima.com.br|maxilimpower.com.br|blog.|pay.hotmart.com/G73410699E)") THEN "Queima Diária"
+  WHEN REGEXP_CONTAINS(page_location, "www.queimadiaria.com(/parceria|/viva-eventos|/netshoes|/markt|/bradesco|/gobatti|/241)") THEN "Queima Diária"
+
+  -- Treinos Power
+  WHEN REGEXP_CONTAINS(page_location, "(treinospower|powerhiit.com|powertonus.com|powerabs.com|powerdance.com|/291|/381|/382)") THEN "Treinos Power"
+
+  -- Mamãe Sarada
+  WHEN REGEXP_CONTAINS(page_location, "(mamaesarada|/92|/383|/384)") THEN "Mamãe Sarada"
+
+  -- Pump 10
+  WHEN REGEXP_CONTAINS(page_location, "(pump10|/188|/206)") THEN "Pump10"
+
+  -- Barriga Negativa
+  WHEN REGEXP_CONTAINS(page_location, "(barriganegativa|/203)") THEN "Barriga Negativa"
+
+  -- Adeus Diástase
+  WHEN REGEXP_CONTAINS(page_location, "(/207|/adeusdiastase)") THEN "Adeus Diástase"
+
+  -- Xô Flacidez
+  WHEN REGEXP_CONTAINS(page_location, "(/xoflacidez|/283)") THEN "Xô Flacidez"
+
+  -- Quema Diaria
+  WHEN REGEXP_CONTAINS(page_location, "(quemadiaria)") THEN "Quema Diaria"
+
+  -- Afina Cintura
+  WHEN REGEXP_CONTAINS(page_location, "(afinacintura|/350)") THEN "Afina Cintura"
+
+  -- Missão Fitness
+  WHEN REGEXP_CONTAINS(page_location, "(missaofitness|/110)") THEN "Missão Fitness"
+
+  -- Método BarreFit
+  WHEN REGEXP_CONTAINS(page_location, "(metodobarrefit|/1)") THEN "Método BarreFit"
+
+  -- Circuito em Casa
+  WHEN REGEXP_CONTAINS(page_location, "(circuitoemcasa|/159)") THEN "Circuito em Casa"
+
+  -- 40+ Fit
+  WHEN REGEXP_CONTAINS(page_location, "(40maisfit|/181)") THEN "40+ Fit"
+
+  -- DMAX60
+  WHEN REGEXP_CONTAINS(page_location, "(dmax60)") THEN "DMAX60"
+
+  -- SculptFit
+  WHEN REGEXP_CONTAINS(page_location, "(sculptfit)") THEN "SculptFit"
+
+  -- Protocolo Caio Franco
+  WHEN REGEXP_CONTAINS(page_location, "(protocolocaiofranco|/211)") THEN "Caio Franco"
+
+  -- Projeto Sasoncella
+  WHEN REGEXP_CONTAINS(page_location, "(projetosasoncella|/sasoncella|/183|/214)") THEN "Sa Soncella"
+
+  -- Missão Massa Magra
+  WHEN REGEXP_CONTAINS(page_location, "(missaomassamagra|/130)") THEN "Missão Massa Magra"
+
+  -- Adeus Dor nas Costas
+  WHEN REGEXP_CONTAINS(page_location, "(adeusdornascostas|/197)") THEN "Adeus Dor nas Costas"
+
+  -- Indique e Ganhe
+  WHEN REGEXP_CONTAINS(page_location, "(www.queimadiaria.com/indique|/329)") THEN "Indique e Ganhe"
+
+  -- Yoga
+  WHEN REGEXP_CONTAINS(page_location, "(www.queimadiaria.com/yoga|/267)") THEN "Yoga"
+
+  -- Minha Yoga
+  WHEN REGEXP_CONTAINS(page_location, "(www.queimadiaria.com/minhayoga|/209)") THEN "Minha Yoga"
+
+  -- Mais QNutri
+  WHEN REGEXP_CONTAINS(page_location, "(www.maisqnutri.com|/343)") THEN "Mais QNutri"
+
+  -- Fit Dance
+  WHEN REGEXP_CONTAINS(page_location, "(www.queimadiaria.com/fitdance|/328)") THEN "Fit Dance"
+
+  -- Upsell
+  WHEN REGEXP_CONTAINS(page_location, "(/oto/nutricional|/oto/coaching|/powerhiit/oto|/mamaesarada/oto|/vevefit/oto)") THEN "Upsell"
+
+  -- Cross Sell
+  WHEN REGEXP_CONTAINS(page_location, "(/cross-sell)") THEN "Cross Sell"
+
+  -- Mamãe Cream
+  WHEN REGEXP_CONTAINS(page_location, "mamaecream") THEN "Mamãe Cream"
+
+  -- Queima Diária - Specific URLs
+  WHEN page_location IN (
+    'https://www.queimadiaria.com/influenciadores/',
+    'https://www.queimadiaria.com/assinar/',
+    'https://www.queimadiaria.com/influenciadores/a/',
+    'https://www.queimadiaria.com/sabrina-soncella/',
+    'https://www.queimadiaria.com/plano-especial/',
+    'https://www.queimadiaria.com/termos-de-uso/',
+    'https://www.queimadiaria.com/dc-vip/',
+    'https://www.queimadiaria.com/convite-especial/',
+    'https://www.queimadiaria.com/crm/',
+    'https://www.queimadiaria.com/pt/',
+    'https://www.queimadiaria.com/leo-gontijo/',
+    'https://www.queimadiaria.com/luana-fiennes/',
+    'https://www.queimadiaria.com/roberta-porto/',
+    'https://www.queimadiaria.com/sabrina-soncella/maes/',
+    'https://www.queimadiaria.com/a/',
+    'https://www.queimadiaria.com/home/planos/',
+    'https://www.queimadiaria.com/lana-pessoa/maes/',
+    'https://www.queimadiaria.com/politica-de-privacidade/',
+    'https://www.queimadiaria.com/barre-class/',
+    'https://www.queimadiaria.com/jaque-fernandes/',
+    'https://www.queimadiaria.com/mirelly-almeida/',
+    'https://www.queimadiaria.com/camp/planos/',
+    'https://www.queimadiaria.com/cadastroinfluenciador/',
+    'https://www.queimadiaria.com/roberta-porto/maes/',
+    'https://www.queimadiaria.com/#',
+    'https://www.queimadiaria.com/raissa-rossi/',
+    'https://www.queimadiaria.com/barre/',
+    'https://www.queimadiaria.com/influenciadores/planos/',
+    'https://www.queimadiaria.com/b/',
+    'https://www.queimadiaria.com/raissa-rossi/maes/',
+    'https://www.queimadiaria.com/comece-hoje/',
+    'https://www.queimadiaria.com/#_=',
+    'https://www.queimadiaria.com/downsell/qnutri/',
+    'https://www.queimadiaria.com/luana-fiennes/maes/',
+    'https://www.queimadiaria.com/seguranca/',
+    'https://www.queimadiaria.com/assinar/a/',
+    'https://www.queimadiaria.com/familia-fit/',
+    'https://www.queimadiaria.com/barre-aprov/',
+    'https://www.queimadiaria.com/hipopressivo-aprov/',
+    'https://www.queimadiaria.com/lana-pessoa/',
+    'https://www.queimadiaria.com/embaixadores/',
+    'https://www.queimadiaria.com.br/queima-friday-oferta-exclusiva/',
+    'https://www.queimadiaria.com/queima-friday/',
+    'https://www.queimadiaria.com/bem-estar/',
+    'https://www.queimadiaria.com/#:~:text=Com uma única assinatura você,R$39,90 por mês.',
+    'https://www.queimadiaria.com/timer/',
+    'https://www.queimadiaria.com/timer-v2/',
+    'https://www.queimadiaria.com/influenciadores-1/',
+    'https://www.queimadiaria.com/nutricional/',
+    'https://www.queimadiaria.com/qnutri/termosdeuso/',
+    'https://www.queimadiaria.com/cadastroinfluenciador/#lp-pom-block-410',
+    'https://www.queimadiaria.com/#:~:text=AGORA É A SUA&text=Você poderá fazer as aulas de qualquer um dos nossos,® para onde você for.',
+    'https://www.queimadiaria.com/eu-quero/',
+    'https://www.queimadiaria.com/#:~:text=Todos os programas valem juntos,exercícios para fazer em casa.',
+    'https://www.queimadiaria.com/politica-privacidade-2023/',
+    'https://www.queimadiaria.com/a/#',
+    'https://www.queimadiaria.com/dc-vip/a/',
+    'https://www.queimadiaria.com/#:~:text=Todos os programas valem juntos,exercícios para fazer em casa',
+    'https://www.queimadiaria.com/#:~:text=Você também poderá espelhar na,do computador na sua TV.',
+    'https://www.queimadiaria.com/empresas-teste/',
+    'https://www.queimadiaria.com/termos-uso-2023/',
+    'https://www.queimadiaria.com/hipopressivo/',
+    'https://www.queimadiaria.com/banco-de-imagem-mamae-cream-prin/',
+    'https://www.queimadiaria.com/mastercard/',
+    'https://www.queimadiaria.com/comece-hoje/visualizacao/',
+    'https://www.queimadiaria.com/regulamento/comece-hoje/',
+    'https://www.queimadiaria.com/nutricional-test/',
+    'https://www.queimadiaria.com/aprov/campanha/',
+    'https://www.queimadiaria.com/treino-em-casa/',
+    'https://www.queimadiaria.com/nutricional-amanda/',
+    'https://www.queimadiaria.com/queima-friday-oferta-especial/',
+    'https://queimadiaria.com.br',
+    'https://queimadiaria.com',
+    'https://treinosuper7.com.br/',
+    'https://qdnutri.com/',
+    'https://qdnutri.com',
+    'https://qdpersonal.com/',
+    'https://www.qdpersonal.com.br/captura/',
+    'https://www.qdpersonal.com.br/',
+    'https://http://www.qdpersonal.com.br/',
+    'https://checkout.queimadiaria.com/checkout/365',
+    'https://checkout.queimadiaria.com/checkout/361',
+    'https://checkout.queimadiaria.com/checkout/352',
+    'https://checkout.queimadiaria.com/checkout/88',
+    'https://checkout.queimadiaria.com/pay-checkout/361',
+    'https://checkout.queimadiaria.com/checkout/374',
+    'https://checkout.queimadiaria.com/checkout/378',
+    'https://checkout.queimadiaria.com/checkout/372',
+    'https://checkout.queimadiaria.com/checkout/87',
+    'https://checkout.queimadiaria.com/checkout/338'
+  ) THEN 'Queima Diária'
+
+  -- Treinos Power - Specific URLs
+  WHEN page_location IN (
+    'https://powercombat.net.br/',
+    'https://www.powergluteos.com.br/',
+    'https://checkout.queimadiaria.com/checkout/375',
+    'https://checkout.queimadiaria.com/checkout/377',
+    'https://checkout.queimadiaria.com/checkout/357',
+    'https://checkout.queimadiaria.com/checkout/367',
+    'https://checkout.queimadiaria.com/checkout/90',
+    'https://checkout.queimadiaria.com/checkout/261',
+    'https://checkout.queimadiaria.com/checkout/84'
+  ) THEN 'Treinos Power'
+
+  -- Mamãe Sarada - Specific URLs
+  WHEN page_location IN (
+    'https://checkout.queimadiaria.com/checkout/376',
+    'https://checkout.queimadiaria.com/checkout/356',
+    'https://checkout.queimadiaria.com/checkout/355',
+    'https://checkout.queimadiaria.com/checkout/366',
+    'https://checkout.queimadiaria.com/checkout/78'
+  ) THEN 'Mamãe Sarada'
+
+  -- Mamãe Cream - Specific URLs
+  WHEN page_location = 'https://mamae-cream.pay.yampi.com.br/checkout' THEN 'Mamãe Cream'
+
+  -- Default case
+  ELSE "(Other)"
+
+END AS page_location_group
+
+from sessions_purchases_utms

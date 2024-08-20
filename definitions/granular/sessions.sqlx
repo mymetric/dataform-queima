@@ -1,0 +1,156 @@
+config {
+  type: "incremental",
+  schema: "dataform_granular",
+  bigquery: {
+    partitionBy: "event_date"
+  }
+}
+
+pre_operations {
+
+  declare max_date default (
+  
+    ${when(incremental(),
+        `SELECT CAST(FORMAT_DATE('%Y%m%d', MAX(event_date)) AS STRING) FROM ${self()}`,
+        `cast("20190101" as string)`
+    )}
+  
+  );
+
+}
+
+with
+
+-- extract parameters
+traffic_sources as (
+
+  select
+
+    parse_date("%Y%m%d", event_date) event_date,
+    event_timestamp,
+    user_pseudo_id,
+
+    (select value.int_value from unnest(event_params) where key = "ga_session_id") ga_session_id,
+    (select value.string_value from unnest(event_params) where key = "source") source,
+    (select value.string_value from unnest(event_params) where key = "medium") medium,
+    (select value.string_value from unnest(event_params) where key = "campaign") campaign,
+    (select value.string_value from unnest(event_params) where key = "content") content,
+    (select value.string_value from unnest(event_params) where key = "term") term,
+    (select value.string_value from unnest(event_params) where key = "gclid") gclid,
+    (select value.string_value from unnest(event_params) where key = 'page_location') page_location,
+    (select value.string_value from unnest(event_params) where key = 'fbp') fbp,
+    (select value.string_value from unnest(event_params) where key = 'fbc') fbc,
+
+    device.category
+
+  from `analytics_316501895.events_*`
+
+  where
+    platform = "WEB"
+    and event_name <> "purchase"
+    and _table_suffix not like "%intraday%"
+    and _table_suffix > max_date
+    
+    
+    
+    
+
+),
+
+-- non direct
+
+non_direct_traffic as (
+
+  select * from (
+
+    select
+
+      row_number() over (partition by user_pseudo_id, ga_session_id order by event_timestamp) AS row_no,
+      *
+
+    from traffic_sources
+
+    where source is not null
+
+  ) where row_no = 1
+
+),
+
+-- direct
+
+direct_traffic_prep as (
+
+  select
+  
+    a.*
+  
+  from traffic_sources a
+
+  left join non_direct_traffic b
+
+  on
+    a.user_pseudo_id = b.user_pseudo_id and
+    a.ga_session_id = b.ga_session_id
+
+  where b.user_pseudo_id is null
+
+),
+
+direct_traffic as (
+
+  select * from (
+
+    select
+
+      row_number() over (partition by user_pseudo_id, ga_session_id order by event_timestamp) AS row_no,
+      *
+
+    from direct_traffic_prep
+
+    where ga_session_id is not null
+
+  ) where row_no = 1
+
+),
+
+-- union direct and non direct
+
+sessions as (
+  
+  select * from non_direct_traffic
+
+  union all
+
+  select * from direct_traffic
+
+)
+
+-- preparation
+
+select
+
+  * except(row_no, source, medium, campaign, content, term, gclid, page_location, fbp, fbc),
+  
+  case
+    when gclid is not null then "google"
+    else coalesce(source, "direct")
+  end source,
+
+  case
+    when gclid is not null then "cpc"
+    else coalesce(medium, "direct")
+  end medium,
+
+  coalesce(campaign, "(not set)") campaign,
+  coalesce(content, "(not set)") content,
+  coalesce(term, "(not set)") term,
+  coalesce(gclid, "(not set)") gclid,
+
+  
+  split(page_location, "?")[offset(0)] page_location,
+  case when array_length(split(page_location, "?")) = 2 then split(page_location, "?")[offset(1)] end page_params,
+
+  fbp,
+  fbc
+
+from sessions
