@@ -1,0 +1,82 @@
+
+with
+
+orders_sessions as (
+
+
+select
+
+a.*,
+b.* except(user_pseudo_id)
+
+from ${ref("orders")} a
+
+left join ${ref("sessions")} b
+
+on
+  a.user_pseudo_id = b.user_pseudo_id
+  and a.datetime > datetime(timestamp_micros(b.event_timestamp), "America/Sao_Paulo")
+
+
+),
+
+not_direct as (
+
+select
+
+  * except(row_no)
+
+from (
+
+  select
+
+    row_number() over (partition by order_id order by event_timestamp desc) AS row_no,
+    *
+
+  from orders_sessions
+
+  where
+
+  source <> "direct"
+
+
+)
+
+where row_no = 1
+
+order by event_timestamp desc
+
+),
+
+direct as (
+
+select
+
+  * except(row_no)
+
+from (
+
+  select
+
+    row_number() over (partition by order_id order by event_timestamp desc) AS row_no,
+    *
+
+  from orders_sessions
+
+  where
+
+  source = "direct"
+
+
+)
+
+where row_no = 1
+
+order by event_timestamp desc
+
+
+)
+
+
+
+
