@@ -1,0 +1,38 @@
+config {
+  type: "incremental",
+  schema: "dataform_granular",
+  bigquery: {
+    partitionBy: "event_date"
+  }
+}
+
+pre_operations {
+
+  declare max_date default (
+  
+    ${when(incremental(),
+        `SELECT CAST(FORMAT_DATE('%Y%m%d', MAX(event_date)) AS STRING) FROM ${self()}`,
+        `cast("20190101" as string)`
+    )}
+  
+  );
+
+}
+
+select
+
+  parse_date("%Y%m%d", event_date) event_date,
+  event_timestamp,
+  user_pseudo_id,
+  (select value.int_value from unnest(event_params) where key = "ga_session_id") ga_session_id,
+
+  ecommerce,
+  items
+
+from `analytics_316501895.events_*`
+
+where
+
+_table_suffix not like "%intraday%"
+and event_name = "purchase"
+and _table_suffix > "{{max_date}}"

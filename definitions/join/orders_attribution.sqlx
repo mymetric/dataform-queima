@@ -1,3 +1,10 @@
+config {
+  type: "table",
+  schema: "dataform_join",
+  bigquery: {
+    partitionBy: "event_date"
+  }
+}
 
 with
 
