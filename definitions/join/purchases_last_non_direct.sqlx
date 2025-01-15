@@ -1,0 +1,105 @@
+config {
+  tags: ["daily"],
+  type: "view",
+  schema: "dataform_join"
+}
+
+with
+
+
+
+purchases as (
+	select * from ${ref("purchases_intraday")}
+),
+
+
+
+sessions_direct as (
+	select * from ${ref("sessions_clustered")} where source = "direct"
+),
+
+
+
+sessions_non_direct as (
+	select * from ${ref("sessions_clustered")} where source <> "direct"
+),
+
+
+
+-- todas visitas não diretas
+prep as (
+
+select
+
+  a.* except(ga_session_id),
+  b.event_timestamp session_event_timestamp,
+  b.* except(user_pseudo_id, event_timestamp, event_date, ga_session_id),
+  b.ga_session_id
+
+from purchases a
+
+left join sessions_non_direct b
+
+on
+	a.user_pseudo_id = b.user_pseudo_id
+	and a.event_timestamp > b.event_timestamp
+
+),
+
+
+-- última visita não direta
+prep2 as (
+
+	select
+
+		* except(row_no)
+
+	from (
+
+		select
+
+			row_number() over (partition by ecommerce.transaction_id order by session_event_timestamp desc) AS row_no,
+			*
+
+		from prep
+
+	)
+
+	where row_no = 1
+
+	order by session_event_timestamp desc
+
+),
+
+-- compras tráfego direto
+direct_purchases as (
+
+	select
+		b.*
+
+	from prep2 a
+
+	left join purchases b
+	on a.ecommerce.transaction_id = b.ecommerce.transaction_id
+
+	where a.source is null
+
+)
+
+select
+
+	a.* except(ga_session_id),
+  b.event_timestamp session_event_timestamp,
+  b.* except(user_pseudo_id, event_timestamp, event_date, ga_session_id),
+  a.ga_session_id
+
+from direct_purchases a
+
+left join sessions_direct b
+
+on a.user_pseudo_id = b.user_pseudo_id and a.ga_session_id = b.ga_session_id
+
+union all
+
+-- compras tráfego não direto
+select * from prep2 where source is not null

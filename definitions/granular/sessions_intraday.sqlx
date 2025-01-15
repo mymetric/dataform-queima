@@ -1,6 +1,6 @@
 config {
   tags: ["daily"],
-  type: "incremental",
+  type: "table",
   schema: "dataform_granular",
   bigquery: {
     partitionBy: "event_date"
@@ -11,10 +11,7 @@ pre_operations {
 
   declare max_date default (
   
-    ${when(incremental(),
-        `SELECT CAST(FORMAT_DATE('%Y%m%d', MAX(event_date)) AS STRING) FROM ${self()}`,
-        `cast("20190101" as string)`
-    )}
+    SELECT CAST(FORMAT_DATE('%Y%m%d', MAX(event_date)) AS STRING) FROM ${ref("sessions")}  
   
   );
 
@@ -49,12 +46,8 @@ traffic_sources as (
   where
     platform = "WEB"
     and event_name <> "purchase"
-    and _table_suffix not like "%intraday%"
+    and _table_suffix like "%intraday%"
     and _table_suffix > max_date
-    
-    
-    
-    
 
 ),
 
@@ -152,3 +145,7 @@ select
   case when array_length(split(page_location, "?")) = 2 then split(page_location, "?")[offset(1)] end page_params,
 
 from sessions
+
+union all
+
+select * from ${ref("sessions")} where event_date > date_sub(current_date, interval 400 day)

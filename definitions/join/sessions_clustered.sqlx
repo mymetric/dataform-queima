@@ -1,3 +1,9 @@
+config {
+  tags: ["daily"],
+  type: "view",
+  schema: "dataform_join"
+}
+
 with prep as (
   
   SELECT
@@ -249,7 +255,7 @@ when page_location = 'https://mamae-cream.pay.yampi.com.br/checkout' then 'Mamã
     end page_location_group
 
   
-  from ${ref("sessions")}
+  from ${ref("sessions_intraday")}
 
 ),
 

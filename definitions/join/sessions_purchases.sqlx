@@ -1,0 +1,91 @@
+config {
+  tags: ["daily"],
+  type: "table",
+  schema: "dataform_join",
+  bigquery: {
+    partitionBy: "event_date"
+  }
+}
+
+with
+
+sessions as (
+
+  select
+
+    *
+
+  from ${ref('sessions_clustered')}
+
+  where
+    page_location not like "%play.%"
+    and page_location not like "%queima.tv%"
+    and page_location not like "%quei.ma%"
+    and page_location not like "%zendesk%"
+    and page_location not like "%checkoutdev%"
+    and page_location not like "%dev.%"
+    and page_location not like "%localhost%"
+    and page_location not like "%netlify.app%"
+    and page_location not like "%github.io%"
+    and page_location not like "%checkout.queimadiaria.com/checkout/billet%"
+    and page_location not like "%queima-microservices%"
+    and page_location not like "%aprovacao%"
+    and page_location not like "%bi-queima-diaria-pr%"
+
+),
+
+purchases as (
+
+select
+
+  user_pseudo_id,
+  ga_session_id,
+  
+  count(distinct case when items.item_id not in ("323", "190", "193", "196", "369", "370", "371", "362", "373", "372", "10001","10002","10003") then ecommerce.transaction_id end) transactions,
+  sum(case when items.item_id not in ("323", "190", "193", "196", "369", "370", "371", "362", "373", "372", "10001","10002","10003") then ecommerce.purchase_revenue end) revenue,
+
+  count(distinct case when items.item_id in ("323") then ecommerce.transaction_id end) transactions_nutricional,
+  sum(case when items.item_id in ("323") then ecommerce.purchase_revenue end) revenue_nutricional,
+
+  count(distinct case when items.item_id in ("10001","10002","10003") then ecommerce.transaction_id end) transactions_mamae,
+  sum(case when items.item_id in ("10001","10002","10003") then ecommerce.purchase_revenue end) revenue_mamae,
+
+  count(distinct case when items.item_id in ("196","369") then ecommerce.transaction_id end) transactions_coaching,
+  sum(case when items.item_id in ("196","369") then ecommerce.purchase_revenue end) revenue_coaching,
+
+  count(distinct case when items.item_id in ("371") then ecommerce.transaction_id end) transactions_coaching_b,
+  sum(case when items.item_id in ("371") then ecommerce.purchase_revenue end) revenue_coaching_b,
+
+  count(distinct case when items.item_id in ("370") then ecommerce.transaction_id end) transactions_downsell_nutricional,
+  sum(case when items.item_id in ("370") then ecommerce.purchase_revenue end) revenue_downsell_nutricional,
+
+  count(distinct case when items.item_id in ("362") then ecommerce.transaction_id end) transactions_nutricional_mamae_sarada,
+  sum(case when items.item_id in ("362") then ecommerce.purchase_revenue end) revenue_nutricional_mamae_sarada,
+
+  count(distinct case when items.item_id in ("373") then ecommerce.transaction_id end) transactions_downsell_nutricional_mamae_sarada,
+  sum(case when items.item_id in ("373") then ecommerce.purchase_revenue end) revenue_downsell_nutricional_mamae_sarada,
+
+  count(distinct case when items.item_id in ("372") then ecommerce.transaction_id end) transactions_coaching_mamae_sarada,
+  sum(case when items.item_id in ("372") then ecommerce.purchase_revenue end) revenue_coaching_mamae_sarada,
+
+  count(distinct case when items.item_id in ("368") then ecommerce.transaction_id end) transactions_upsell_mamae_cream_ms,
+  sum(case when items.item_id in ("368") then ecommerce.purchase_revenue end) revenue_upsell_mamae_cream_ms,
+
+  
+  -- count(distinct case when items.item_id in ("10001", "10002", "10003") then ecommerce.transaction_id end) transactions_mamae_cream,
+  -- sum(case when items.item_id in ("10001", "10002", "10003") then ecommerce.purchase_revenue end) revenue_mamae_cream,
+
+from ${ref("purchases_last_non_direct")}, unnest(items) as items
+
+group by all
+
+)
+
+select
+
+  a.*,
+  c.* except(user_pseudo_id, ga_session_id),
+
+from sessions a
+
+left join purchases c on a.user_pseudo_id = c.user_pseudo_id and a.ga_session_id = c.ga_session_id
