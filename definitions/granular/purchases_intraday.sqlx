@@ -33,7 +33,7 @@ where
 
 _table_suffix like "%intraday%"
 and event_name = "purchase"
-and _table_suffix > "{{max_date}}"
+and _table_suffix > max_date
 
 union all
 

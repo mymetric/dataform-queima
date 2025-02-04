@@ -36,4 +36,4 @@ where
 
 _table_suffix not like "%intraday%"
 and event_name = "purchase"
-and _table_suffix > "{{max_date}}"
+and _table_suffix > max_date
