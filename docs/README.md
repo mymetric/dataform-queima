@@ -22,3 +22,33 @@
 - [Purchases Last Non Direct](join/purchases_last_non_direct.md) - Atribuição de compras à última sessão não-direta
 
 ## Estrutura do Projeto 
+
+```
+docs/
+├── README.md
+├── granular/
+│   ├── sessions.md
+│   ├── sessions_intraday.md
+│   ├── orders.md
+│   ├── purchases.md
+│   └── purchases_intraday.md
+└── join/
+    ├── sessions_clustered.md
+    ├── sessions_funnel.md
+    ├── sessions_purchases.md
+    └── purchases_last_non_direct.md
+```
+
+## Visão Geral das Dependências
+
+```mermaid
+graph TD
+    A[sessions] --> B[sessions_intraday]
+    A --> C[sessions_clustered]
+    C --> D[sessions_funnel]
+    C --> E[sessions_purchases]
+    F[purchases] --> G[purchases_intraday]
+    G --> H[purchases_last_non_direct]
+    H --> E
+    I[orders] --> D
+``` 
