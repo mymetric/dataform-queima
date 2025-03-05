@@ -1,0 +1,68 @@
+config {
+  tags: ["daily"],
+  type: "incremental",
+  schema: "dataform_granular",
+  bigquery: {
+    partitionBy: "event_date"
+  }
+}
+
+pre_operations {
+
+  declare max_date default (
+  
+    ${when(incremental(),
+        `SELECT CAST(FORMAT_DATE('%Y%m%d', MAX(event_date)) AS STRING) FROM ${self()}`,
+        `cast("20190101" as string)`
+    )}
+  
+  );
+
+}
+
+with
+
+prep as (
+
+SELECT
+  
+  parse_date("%Y%m%d", event_date) event_date,
+  event_timestamp,
+  user_pseudo_id,
+  (select value.int_value from unnest(event_params) where key = "ga_session_id") ga_session_id,
+
+  (select value.string_value from unnest(event_params) where key = "experiment_id") experiment_id,
+  (select value.string_value from unnest(event_params) where key = "experiment_name") experiment_name,
+  (select value.int_value from unnest(event_params) where key = "experiment_variant") experiment_variant,
+
+  (select value.string_value from unnest(event_params) where key = "page_location") page_location,
+
+  device.category,
+
+
+from `analytics_316501895.events_*`
+
+WHERE
+  _table_suffix not like "%intraday%"
+  and event_name = "experiment_impression"
+  and _table_suffix > max_date
+
+)
+
+select
+  * except(row_no)
+from (
+
+  select
+
+    row_number() over (partition by user_pseudo_id,ga_session_id order by event_timestamp) AS row_no,
+    *
+
+  from prep
+
+  where
+    experiment_id is not null
+    and experiment_variant is not null
+
+)
+where row_no = 1
