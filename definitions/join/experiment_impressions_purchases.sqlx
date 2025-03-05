@@ -1,0 +1,16 @@
+config {
+  tags: ["daily"],
+  type: "view",
+  schema: "dataform_join"
+}
+
+select
+
+	a.*,
+	b.* except(user_pseudo_id, ga_session_id, event_date, event_timestamp, category, page_location),
+
+from ${ref("experiment_impressions_intraday")} a
+
+left join ${ref("sessions_purchases")} b
+
+on a.user_pseudo_id = b.user_pseudo_id and a.ga_session_id = b.ga_session_id

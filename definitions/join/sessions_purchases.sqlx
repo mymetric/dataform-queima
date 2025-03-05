@@ -34,6 +34,33 @@ sessions as (
 
 ),
 
+steps as (
+
+select
+
+  user_pseudo_id,
+  ga_session_id,
+
+  count(distinct case when regexp_contains(page_location, "planos") then concat(user_pseudo_id, ga_session_id) end) plans,
+  count(distinct case when regexp_contains(page_location, "checkout") then concat(user_pseudo_id, ga_session_id) end) checkout,
+  count(distinct case when regexp_contains(page_location, "oto\\/nutricional") then concat(user_pseudo_id, ga_session_id) end) upsell_nutricional,
+  count(distinct case when regexp_contains(page_location, "oto\\/coaching") then concat(user_pseudo_id, ga_session_id) end) upsell_coaching,
+  count(distinct case when regexp_contains(page_location, "\\/oto\\/coaching\\/personalizado") and not regexp_contains(page_location, r'/a') then concat(user_pseudo_id, ga_session_id) end) upsell_coaching_personalizado,
+  count(distinct case when regexp_contains(page_location, "\\/oto\\/coaching\\/personalizado\\/a") then concat(user_pseudo_id, ga_session_id) end) upsell_coaching_personalizado_a,
+  count(distinct case when regexp_contains(page_location, "\\/downsell\\/qnutri") then concat(user_pseudo_id, ga_session_id) end) downsell_nutricional,
+  count(distinct case when regexp_contains(page_location, "\\/after-checkout-password") then concat(user_pseudo_id, ga_session_id) end) password,
+  count(distinct case when regexp_contains(page_location, "\\/congratulations") then concat(user_pseudo_id, ga_session_id) end) congratulations,
+  count(distinct case when regexp_contains(page_location, "\\/address") then concat(user_pseudo_id, ga_session_id) end) address,
+  count(distinct case when regexp_contains(page_location, "\\/login")  then concat(user_pseudo_id, ga_session_id) end) login,
+  count(distinct case when regexp_contains(page_location, "\\/billet")  then concat(user_pseudo_id, ga_session_id) end) billet,
+  count(distinct case when regexp_contains(page_location, "\\/carol-borba\\/planos")  then concat(user_pseudo_id, ga_session_id) end) plans_carol_borba
+  
+from ${ref("pageviews_intraday")}
+
+group by all
+
+),
+
 purchases as (
 
 select
@@ -84,8 +111,10 @@ group by all
 select
 
   a.*,
+  b.* except(user_pseudo_id, ga_session_id),
   c.* except(user_pseudo_id, ga_session_id),
 
 from sessions a
 
+left join steps b on a.user_pseudo_id = b.user_pseudo_id and a.ga_session_id = b.ga_session_id
 left join purchases c on a.user_pseudo_id = c.user_pseudo_id and a.ga_session_id = c.ga_session_id
