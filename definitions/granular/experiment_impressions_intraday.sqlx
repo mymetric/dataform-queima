@@ -1,5 +1,5 @@
 config {
-  tags: ["daily"],
+  tags: ["hourly"],
   type: "table",
   schema: "dataform_granular",
   bigquery: {
@@ -65,5 +65,5 @@ where row_no = 1
 
 union all
 
-select * from ${ref("experiment_impressions")} where event_date > date_sub(current_date, interval 400 day)
+select * from ${ref("experiment_impressions")} where event_date > date_sub(current_date, interval 90 day)
 

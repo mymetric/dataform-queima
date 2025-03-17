@@ -8,251 +8,91 @@ with prep as (
   
   SELECT
     *,
-  
-    case
 
-      -- queima diária
-      when regexp_contains(page_location, "(^http(s|)://(www.|)queimadiaria.com(|.br)/)$") then "Queima Diária"
-      when regexp_contains(page_location, "www.queimadiaria.com(/exercicios-em-casa|/transforme-sua-vida|/mp|/planos|/sete-reais|/garantia|/um-real|/missaofitness/7-reais|/pacote-completo|/como-funciona|/homens|/resultado|/treino-para-iniciantes|/tiktok|/dia-das-maes|/maes|/qfvip|queima-friday|/native|/desafio|/consumidor|/iniciante|/perder-peso|/perder-barriga|/exercicios-para-emagrecer|/aerobika|/u|/zumba|/pilates|/agatha|/massa-magra|/obrigado|/boleto-gerado|/compra-aprovada|/ebook|/deborah)") then "Queima Diária"
-      when regexp_contains(page_location, "(131|199|191|299|112|126|345|349|109|332|192|279|264|251|379|380)") then "Queima Diária"
-      when regexp_contains(page_location, "queimadiaria.com.br/(quiz|acesso)") then "Queima Diária"
-      when regexp_contains(page_location, "(queima.com.br|maxilimpower.com.br|blog.|pay.hotmart.com/G73410699E)") then "Queima Diária"
-      when regexp_contains(page_location, "www.queimadiaria.com(/parceria|/viva-eventos|/netshoes|/markt|/bradesco|/gobatti|/241)") then "Queima Diária"
+CASE
+  -- Numeric ID-based mappings (excluding Queima Diária-related)
+  WHEN REGEXP_CONTAINS(page_location, r"355") THEN "Mamãe Sarada 40+"
+  WHEN REGEXP_CONTAINS(page_location, r"329") THEN "Indique e Ganhe"
+  WHEN REGEXP_CONTAINS(page_location, r"(291|104|381|382|357|377|386|385|367|347|375|90|261|84)") THEN "Treinos Power"
+  WHEN REGEXP_CONTAINS(page_location, r"(92|106|383|384|356|366|376|368|78|346)") THEN "Mamãe Sarada"
+  WHEN REGEXP_CONTAINS(page_location, r"110") THEN "Missão Fitness"
+  WHEN REGEXP_CONTAINS(page_location, r"(10001|10002|10003)") THEN "Mamãe Cream"
+  WHEN REGEXP_CONTAINS(page_location, r"(188|206)") THEN "Pump10"
+  WHEN REGEXP_CONTAINS(page_location, r"203") THEN "Barriga Negativa"
+  WHEN REGEXP_CONTAINS(page_location, r"207") THEN "Adeus Diástase"
+  WHEN REGEXP_CONTAINS(page_location, r"283") THEN "Xô Flacidez"
+  WHEN REGEXP_CONTAINS(page_location, r"350") THEN "Método Afina Cintura"
+  WHEN REGEXP_CONTAINS(page_location, r"1") THEN "Método BarreFit"
+  WHEN REGEXP_CONTAINS(page_location, r"159") THEN "Circuito em Casa"
+  WHEN REGEXP_CONTAINS(page_location, r"181") THEN "40+ Fit"
+  WHEN REGEXP_CONTAINS(page_location, r"211") THEN "Protocolo Caio Franco"
+  WHEN REGEXP_CONTAINS(page_location, r"(183|214)") THEN "Projeto SaSoncella"
+  WHEN REGEXP_CONTAINS(page_location, r"130") THEN "Missão Massa Magra"
+  WHEN REGEXP_CONTAINS(page_location, r"197") THEN "Adeus Dor nas Costas"
+  WHEN REGEXP_CONTAINS(page_location, r"267") THEN "Yoga"
+  WHEN REGEXP_CONTAINS(page_location, r"209") THEN "Minha Yoga"
+  WHEN REGEXP_CONTAINS(page_location, r"328") THEN "Fit Dance"
+  WHEN REGEXP_CONTAINS(page_location, r"142") THEN "Treinos Super 7"
+  WHEN REGEXP_CONTAINS(page_location, r"132") THEN "Pilates Fit"
+  WHEN REGEXP_CONTAINS(page_location, r"135") THEN "DMAX60"
+  WHEN REGEXP_CONTAINS(page_location, r"175") THEN "Sculp Fit"
+  WHEN REGEXP_CONTAINS(page_location, r"340") THEN "8 Rounds"
+  WHEN REGEXP_CONTAINS(page_location, r"163") THEN "Grávida em Forma"
+  WHEN REGEXP_CONTAINS(page_location, r"205") THEN "Mudança de Hábitos - Venda Direta"
+  WHEN REGEXP_CONTAINS(page_location, r"(343|322)") THEN "Mais Q Nutri - Venda Direta"
 
-      -- treinos power
-      when regexp_contains(page_location, "(treinospower|powerhiit.com|powertonus.com|powerabs.com|powerdance.com|/291|/381|/382)") then "Treinos Power"
+  -- URL-based mappings (excluding Queima Diária-related subpaths)
+  WHEN REGEXP_CONTAINS(page_location, r"mamaesarada\.com/barriga-sarada") THEN "Barriga Sarada"
+  WHEN REGEXP_CONTAINS(page_location, r"treinospower\.com\.br|powerhiit\.com\.br|powergluteos\.com\.br|powerdance\.com\.br|powerabs\.com\.br|powercombat\.net\.br|powertonus\.com\.br") THEN "Treinos Power"
+  WHEN REGEXP_CONTAINS(page_location, r"mamaesarada\.com") THEN "Mamãe Sarada"
+  WHEN REGEXP_CONTAINS(page_location, r"pump10\.com\.br") THEN "Pump10"
+  WHEN REGEXP_CONTAINS(page_location, r"metodofaceyoga\.com\.br") THEN "Face Yoga"
+  WHEN REGEXP_CONTAINS(page_location, r"limitemaximo\.com\.br") THEN "Limite Máximo"
+  WHEN REGEXP_CONTAINS(page_location, r"blog\.queimadiaria\.com") THEN "Blog Queima Diária"
+  WHEN REGEXP_CONTAINS(page_location, r"missaofitness\.com\.br") THEN "Missão Fitness"
+  WHEN REGEXP_CONTAINS(page_location, r"afinacintura\.com\.br") THEN "Método Afina Cintura"
+  WHEN REGEXP_CONTAINS(page_location, r"metodobarrefit\.com\.br") THEN "Método BarreFit"
+  WHEN REGEXP_CONTAINS(page_location, r"projetosasoncella\.com\.br|sasoncella") THEN "Projeto SaSoncella"
+  WHEN REGEXP_CONTAINS(page_location, r"dmax60\.com\.br") THEN "DMAX60"
+  WHEN REGEXP_CONTAINS(page_location, r"40maisfit\.com\.br") THEN "40+ Fit"
+  WHEN REGEXP_CONTAINS(page_location, r"circuitoemcasa\.com\.br") THEN "Circuito em Casa"
+  WHEN REGEXP_CONTAINS(page_location, r"100porcentomagra\.com\.br") THEN "100% Magra"
+  WHEN REGEXP_CONTAINS(page_location, r"adeusdornascostas\.com\.br") THEN "Adeus Dor nas Costas"
+  WHEN REGEXP_CONTAINS(page_location, r"maxilimpower\.com\.br") THEN "Maxilim Power"
+  WHEN REGEXP_CONTAINS(page_location, r"missaomassamagra\.com\.br") THEN "Missão Massa Magra"
+  WHEN REGEXP_CONTAINS(page_location, r"treinosuper7\.com\.br") THEN "Treinos Super 7"
+  WHEN REGEXP_CONTAINS(page_location, r"maisqnutri\.com\.br") THEN "Mais Q Nutri - Venda Direta"
+  WHEN REGEXP_CONTAINS(page_location, r"qdnutri\.com") THEN "QD Nutri"
+  WHEN REGEXP_CONTAINS(page_location, r"qdpersonal\.com") THEN "QD Personal"
+  WHEN REGEXP_CONTAINS(page_location, r"quemadiaria\.com") THEN "Quema Diária"  -- Still distinct, clarify if typo
+  WHEN REGEXP_CONTAINS(page_location, r"sculpfit\.com\.br") THEN "Sculp Fit"
+  WHEN REGEXP_CONTAINS(page_location, r"protocolocaiofranco\.com\.br") THEN "Protocolo Caio Franco"
+  WHEN REGEXP_CONTAINS(page_location, r"mamaecream") THEN "Mamãe Cream"
+  WHEN REGEXP_CONTAINS(page_location, r"/oto/(nutricional|coaching)|/powerhiit/oto|/mamaesarada/oto|/vevefit/oto") THEN "Upsell"
+  WHEN REGEXP_CONTAINS(page_location, r"/cross-sell") THEN "Cross Sell"
 
-      -- mamãe sarada
-      when regexp_contains(page_location, "(mamaesarada|/92|/383|/384)") then "Mamãe Sarada"
+  -- Exact URL matches (non-Queima Diária)
+  WHEN page_location = 'https://mamae-cream.pay.yampi.com.br/checkout' THEN 'Mamãe Cream'
 
-      -- pump 10
-      when regexp_contains(page_location, "(pump10|/188|/206)") then "Pump10"
+  -- Queima Diária-related rules (moved to the end)
+  WHEN REGEXP_CONTAINS(page_location, r"352") THEN "Queima Diária + QNutri"  -- Specific ID prioritized
+  WHEN REGEXP_CONTAINS(page_location, r"332") THEN "Queima Diária Parceria"  -- Specific ID prioritized
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/byebye-?celulite") THEN "Bye Bye Celulite"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/indique") THEN "Indique e Ganhe"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/xoflacidez") THEN "Xô Flacidez"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/yoga") THEN "Yoga"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/minhayoga") THEN "Minha Yoga"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/fitdance") THEN "Fit Dance"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/barriganegativa") THEN "Barriga Negativa"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/adeusdiastase") THEN "Adeus Diástase"
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/jejum-diario") THEN "Jejum Diário"
+  WHEN REGEXP_CONTAINS(page_location, r"(131|379|380|361|345|349|129|264|126|365|364|363|112|321|359|109|378|102|113|87|397|328|299|165|199|191|192|279|251)") THEN "Queima Diária"  -- Numeric IDs for Queima Diária
+  WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com") THEN "Queima Diária"  -- Broad catch-all for Queima Diária URLs
+  WHEN REGEXP_CONTAINS(page_location, r"queima\.com\.br") THEN "Queima Diária"
 
-      -- barriga negativa
-      when regexp_contains(page_location, "(barriganegativa|/203)") then "Barriga Negativa"
+  ELSE "(Other)"
 
-      -- adeus diástase
-      when regexp_contains(page_location, "(/207|/adeusdiastase)") then "Adeus Diástase"
-
-      -- xô flacidez
-      when regexp_contains(page_location, "(/xoflacidez|/283)") then "Xô Flacidez"
-
-      -- quema diaria
-      when regexp_contains(page_location, "(quemadiaria)") then "Quema Diaria"
-
-      -- afina cintura
-      when regexp_contains(page_location, "(afinacintura|/350)") then "Afina Cintura"
-
-      -- missao fitness
-      when regexp_contains(page_location, "(missaofitness|/110)") then "Missão Firness"
-
-      -- método barrefit
-      when regexp_contains(page_location, "(metodobarrefit|/1)") then "Método BarreFit"
-
-      -- circuito em casa
-      when regexp_contains(page_location, "(circuitoemcasa|/159)") then "Circuito em Casa"
-
-      -- 40+ fit
-      when regexp_contains(page_location, "(40maisfit|/181)") then "40+ Fit"
-
-      -- dmax60
-      when regexp_contains(page_location, "(dmax60)") then "DMAX60"
-
-      -- sculptfit
-      when regexp_contains(page_location, "(sculptfit)") then "Sulptfit"
-
-      -- protocolo caio franco
-      when regexp_contains(page_location, "(protocolocaiofranco|/211)") then "Caio Franco"
-
-      -- projeto sansoncella
-      when regexp_contains(page_location, "(projetosasoncella|/sasoncella|/183|/214)") then "Sa Soncella"
-
-      -- missão massa magra
-      when regexp_contains(page_location, "(missaomassamagra|/130)") then "Missão Massa Magra"
-
-      -- adeus dor nas costas
-      when regexp_contains(page_location, "(adeusdornascostas|/197)") then "Adeus Dor nas Costas"
-
-      -- indique
-      when regexp_contains(page_location, "(www.queimadiaria.com/indique|/329)") then "Indique e Ganhe"
-
-      -- yoga
-      when regexp_contains(page_location, "(www.queimadiaria.com/yoga|/267)") then "Yoga"
-
-      -- minha yoga
-      when regexp_contains(page_location, "(www.queimadiaria.com/minhayoga|/209)") then "Minha Yoga"
-
-      -- mais qnutri
-      when regexp_contains(page_location, "(www.maisqnutri.com|/343)") then "Mais QNutri"
-
-      -- fitdance
-      when regexp_contains(page_location, "(www.queimadiaria.com/fitdance|/328)") then "Fit Dance"
-
-      -- upsell
-      when regexp_contains(page_location, "(/oto/nutricional|/oto/coaching|/powerhiit/oto|/mamaesarada/oto|/vevefit/oto)") then "Upsell"
-
-      -- cross sell
-      when regexp_contains(page_location, "(/cross-sell)") then "Cross Sell"
-
-      -- mamae cream
-      when regexp_contains(page_location, "mamaecream") then "Mamãe Cream"
-
-when page_location = 'https://www.queimadiaria.com/influenciadores/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/assinar/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/influenciadores/a/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/sabrina-soncella/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/plano-especial/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/termos-de-uso/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/dc-vip/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/convite-especial/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/crm/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/pt/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/leo-gontijo/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/luana-fiennes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/roberta-porto/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/sabrina-soncella/maes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/a/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/home/planos/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/lana-pessoa/maes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/politica-de-privacidade/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/barre-class/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/jaque-fernandes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/mirelly-almeida/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/camp/planos/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/cadastroinfluenciador/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/roberta-porto/maes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/raissa-rossi/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/barre/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/influenciadores/planos/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/b/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/raissa-rossi/maes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/comece-hoje/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#_=_' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/downsell/qnutri/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/luana-fiennes/maes/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/seguranca/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/assinar/a/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/familia-fit/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/barre-aprov/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/hipopressivo-aprov/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/lana-pessoa/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/embaixadores/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com.br/queima-friday-oferta-exclusiva/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/queima-friday/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/bem-estar/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Com uma única assinatura você,R$39,90 por mês.' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/timer/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/timer-v2/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/influenciadores-1/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/nutricional/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/qnutri/termosdeuso/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/cadastroinfluenciador/#lp-pom-block-410' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=AGORA É A SUA&text=Você poderá fazer as aulas de qualquer um dos nossos,® para onde você for.' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/eu-quero/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Todos os programas valem juntos,exercícios para fazer em casa.' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/politica-privacidade-2023/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/a/#' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/dc-vip/a/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Todos os programas valem juntos,exercícios para fazer em casa' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Você também poderá espelhar na,do computador na sua TV.' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/empresas-teste/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/termos-uso-2023/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/hipopressivo/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/banco-de-imagem-mamae-cream-prin/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/mastercard/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/comece-hoje/visualizacao/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/regulamento/comece-hoje/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/nutricional-test/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/aprov/campanha/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/treino-em-casa/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/nutricional-amanda/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/queima-friday-oferta-especial/' then 'Queima Diária'
-when page_location = 'https://queimadiaria.com.br' then 'Queima Diária'
-when page_location = 'https://queimadiaria.com' then 'Queima Diária'
-when page_location = 'https://treinosuper7.com.br/' then 'Queima Diária'
-when page_location = 'https://qdnutri.com/' then 'Queima Diária'
-when page_location = 'https://qdnutri.com' then 'Queima Diária'
-when page_location = 'https://qdnutri.com' then 'Queima Diária'
-when page_location = 'https://www.qdnutri.com.br/' then 'Queima Diária'
-when page_location = 'https://qdpersonal.com/' then 'Queima Diária'
-when page_location = 'https://qdpersonal.com' then 'Queima Diária'
-when page_location = 'https://qdpersonal.com' then 'Queima Diária'
-when page_location = 'https://www.qdpersonal.com.br/captura/' then 'Queima Diária'
-when page_location = 'https://www.qdpersonal.com.br/' then 'Queima Diária'
-when page_location = 'https://http:www.qdpersonal.com.br/' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/365' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/361' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/352' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/88' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/pay-checkout/361' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/374' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/378' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/372' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/87' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/338' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Todos os programas valem juntos,exercícios para fazer em casa.' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/politica-privacidade-2023/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/a/#' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/dc-vip/a/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Todos os programas valem juntos,exercícios para fazer em casa' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/#:~:text=Você também poderá espelhar na,do computador na sua TV.' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/empresas-teste/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/termos-uso-2023/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/hipopressivo/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/banco-de-imagem-mamae-cream-prin/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/mastercard/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/comece-hoje/visualizacao/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/regulamento/comece-hoje/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/nutricional-test/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/aprov/campanha/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/treino-em-casa/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/nutricional-amanda/' then 'Queima Diária'
-when page_location = 'https://www.queimadiaria.com/queima-friday-oferta-especial/' then 'Queima Diária'
-when page_location = 'https://queimadiaria.com.br' then 'Queima Diária'
-when page_location = 'https://queimadiaria.com' then 'Queima Diária'
-when page_location = 'https://treinosuper7.com.br/' then 'Queima Diária'
-when page_location = 'https://qdnutri.com/' then 'Queima Diária'
-when page_location = 'https://qdnutri.com' then 'Queima Diária'
-when page_location = 'https://qdnutri.com' then 'Queima Diária'
-when page_location = 'https://www.qdnutri.com.br/' then 'Queima Diária'
-when page_location = 'https://qdpersonal.com/' then 'Queima Diária'
-when page_location = 'https://qdpersonal.com' then 'Queima Diária'
-when page_location = 'https://qdpersonal.com' then 'Queima Diária'
-when page_location = 'https://www.qdpersonal.com.br/captura/' then 'Queima Diária'
-when page_location = 'https://www.qdpersonal.com.br/' then 'Queima Diária'
-when page_location = 'https://http://www.qdpersonal.com.br/' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/365' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/361' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/352' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/88' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/pay-checkout/361' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/374' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/378' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/372' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/87' then 'Queima Diária'
-when page_location = 'https://checkout.queimadiaria.com/checkout/338' then 'Queima Diária'
-when page_location = 'https://powercombat.net.br/' then 'Treinos Power'
-when page_location = 'https://www.powergluteos.com.br/' then 'Treinos Power'
-when page_location = 'https://powercombat.net.br/' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/375' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/377' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/357' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/367' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/90' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/261' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/84' then 'Treinos Power'
-when page_location = 'https://checkout.queimadiaria.com/checkout/376' then 'Mamãe Sarada'
-when page_location = 'https://checkout.queimadiaria.com/checkout/356' then 'Mamãe Sarada'
-when page_location = 'https://checkout.queimadiaria.com/checkout/355' then 'Mamãe Sarada'
-when page_location = 'https://checkout.queimadiaria.com/checkout/366' then 'Mamãe Sarada'
-when page_location = 'https://checkout.queimadiaria.com/checkout/78' then 'Mamãe Sarada'
-when page_location = 'https://mamae-cream.pay.yampi.com.br/checkout' then 'Mamãe Cream'
-
-      -- else page_location
-      else "(Other)"
-  
-    end page_location_group
+end page_location_group
 
   
   from ${ref("sessions_intraday")}
