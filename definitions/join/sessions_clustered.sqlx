@@ -22,7 +22,6 @@ CASE
   WHEN REGEXP_CONTAINS(page_location, r"207") THEN "Adeus Diástase"
   WHEN REGEXP_CONTAINS(page_location, r"283") THEN "Xô Flacidez"
   WHEN REGEXP_CONTAINS(page_location, r"350") THEN "Método Afina Cintura"
-  WHEN REGEXP_CONTAINS(page_location, r"1") THEN "Método BarreFit"
   WHEN REGEXP_CONTAINS(page_location, r"159") THEN "Circuito em Casa"
   WHEN REGEXP_CONTAINS(page_location, r"181") THEN "40+ Fit"
   WHEN REGEXP_CONTAINS(page_location, r"211") THEN "Protocolo Caio Franco"
@@ -40,7 +39,8 @@ CASE
   WHEN REGEXP_CONTAINS(page_location, r"163") THEN "Grávida em Forma"
   WHEN REGEXP_CONTAINS(page_location, r"205") THEN "Mudança de Hábitos - Venda Direta"
   WHEN REGEXP_CONTAINS(page_location, r"(343|322)") THEN "Mais Q Nutri - Venda Direta"
-
+  WHEN REGEXP_CONTAINS(page_location, r"1") THEN "Método BarreFit"
+  
   -- URL-based mappings (excluding Queima Diária-related subpaths)
   WHEN REGEXP_CONTAINS(page_location, r"mamaesarada\.com/barriga-sarada") THEN "Barriga Sarada"
   WHEN REGEXP_CONTAINS(page_location, r"treinospower\.com\.br|powerhiit\.com\.br|powergluteos\.com\.br|powerdance\.com\.br|powerabs\.com\.br|powercombat\.net\.br|powertonus\.com\.br") THEN "Treinos Power"
@@ -91,6 +91,7 @@ CASE
   WHEN REGEXP_CONTAINS(page_location, r"queima\.com\.br") THEN "Queima Diária"
 
   ELSE "(Other)"
+
 
 end page_location_group
 
