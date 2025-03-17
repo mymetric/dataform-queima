@@ -1,5 +1,5 @@
 config {
-  tags: ["daily"],
+  tags: ["hourly"],
   type: "table",
   schema: "dataform_join",
   bigquery: {
