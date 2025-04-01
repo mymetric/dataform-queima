@@ -64,13 +64,17 @@ graph TD
     C --> D[sessions_funnel]
     C --> E[sessions_purchases]
     F[purchases] --> G[purchases_intraday]
+    F --> E
     G --> H[purchases_last_non_direct]
     H --> E
     I[orders] --> D
-    J[pageviews_intraday] --> E
-    K[experiment_impressions] --> L[experiment_impressions_intraday]
-    L --> M[experiment_results]
-    M --> N[experiment_results_intraday]
+    I --> E
+    J[pageviews] --> K[pageviews_intraday]
+    K --> E
+    L[experiment_impressions] --> M[experiment_impressions_intraday]
+    M --> N[experiment_results]
+    N --> O[experiment_results_intraday]
+    N --> E
 ```
 
 ## Atualizações Recentes
