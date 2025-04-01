@@ -74,7 +74,7 @@ graph TD
     L[experiment_impressions] --> M[experiment_impressions_intraday]
     M --> N[experiment_results]
     N --> O[experiment_results_intraday]
-    N --> E
+    N <-- E
 ```
 
 ## Atualizações Recentes
