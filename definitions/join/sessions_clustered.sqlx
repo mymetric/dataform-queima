@@ -91,9 +91,11 @@ CASE
   WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com/jejum-diario") THEN "Jejum Diário"
   WHEN REGEXP_CONTAINS(page_location, r"(131|379|380|361|345|349|129|264|126|365|364|363|112|321|359|109|378|102|113|87|397|328|299|165|199|191|192|279|251)") THEN "Queima Diária"  -- Numeric IDs for Queima Diária
   
+  -- regras abrangentes
+  WHEN REGEXP_CONTAINS(page_location, r"1") and REGEXP_CONTAINS(page_location, r"checkout") THEN "Método BarreFit"
   WHEN REGEXP_CONTAINS(page_location, r"queimadiaria\.com(.*)") THEN "Queima Diária"
   WHEN REGEXP_CONTAINS(page_location, r"queima\.com\.br(.*)") THEN "Queima Diária"
-  WHEN REGEXP_CONTAINS(page_location, r"1") THEN "Método BarreFit"
+  
   ELSE "(Other)"
 
 
