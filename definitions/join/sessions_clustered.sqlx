@@ -43,6 +43,7 @@ CASE
   -- URL-based mappings (excluding Queima Diária-related subpaths)
   WHEN REGEXP_CONTAINS(page_location, r"mamaesarada\.com/barriga-sarada") THEN "Barriga Sarada"
   WHEN REGEXP_CONTAINS(page_location, r"treinospower\.com\.br|powerhiit\.com\.br|powergluteos\.com\.br|powerdance\.com\.br|powerabs\.com\.br|powercombat\.net\.br|powertonus\.com\.br") THEN "Treinos Power"
+  WHEN REGEXP_CONTAINS(page_location, r"barriga-sarada") THEN "Barriga Sarada"
   WHEN REGEXP_CONTAINS(page_location, r"mamaesarada\.com") THEN "Mamãe Sarada"
   WHEN REGEXP_CONTAINS(page_location, r"pump10\.com\.br") THEN "Pump10"
   WHEN REGEXP_CONTAINS(page_location, r"metodofaceyoga\.com\.br") THEN "Face Yoga"
