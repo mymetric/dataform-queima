@@ -49,7 +49,6 @@ SELECT
   safe_cast(coalesce(
     JSON_EXTRACT_SCALAR(body, '$.produtos_pedido.mmTracker.session_id'),
     REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(body, '$.session_id'), r's(\d+)'),
-    JSON_EXTRACT_SCALAR(body, '$.session_id'),
     split(JSON_EXTRACT_SCALAR(body, '$.session_id'), ".")[safe_offset(2)]
   ) as int64) ga_session_id,
   coalesce(
