@@ -145,4 +145,5 @@ from sessions
 
 union all
 
-select * from ${ref("sessions")} where event_date > date_sub(current_date, interval 90 day)
+select * from ${ref("sessions")}
+where event_date > date_sub(current_date, interval 2 year)
