@@ -14,6 +14,7 @@ CASE
   WHEN REGEXP_CONTAINS(page_location, r"355") THEN "Mamãe Sarada 40+"
   WHEN REGEXP_CONTAINS(page_location, r"329") THEN "Indique e Ganhe"
   WHEN REGEXP_CONTAINS(page_location, r"(291|104|381|382|357|377|386|385|367|347|375|90|261|84)") THEN "Treinos Power"
+  WHEN REGEXP_CONTAINS(page_location, r"(387|388|389|390|451|452|453|454|455)") THEN "Limite Máximo"
   WHEN REGEXP_CONTAINS(page_location, r"(92|106|383|384|356|366|376|368|78|346)") THEN "Mamãe Sarada"
   WHEN REGEXP_CONTAINS(page_location, r"110") THEN "Missão Fitness"
   WHEN REGEXP_CONTAINS(page_location, r"(10001|10002|10003)") THEN "Mamãe Cream"
