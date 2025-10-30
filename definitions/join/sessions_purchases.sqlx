@@ -61,6 +61,20 @@ group by all
 
 ),
 
+leads as (
+
+select
+
+user_pseudo_id,
+ga_session_id,
+1 lead
+
+from ${ref("generate_lead_intraday")}
+
+group by all
+
+),
+
 purchases as (
 
 select
@@ -113,8 +127,11 @@ select
   a.*,
   b.* except(user_pseudo_id, ga_session_id),
   c.* except(user_pseudo_id, ga_session_id),
+  d.* except(user_pseudo_id, ga_session_id),
 
 from sessions a
 
 left join steps b on a.user_pseudo_id = b.user_pseudo_id and a.ga_session_id = b.ga_session_id
 left join purchases c on a.user_pseudo_id = c.user_pseudo_id and a.ga_session_id = c.ga_session_id
+left join leads d on a.user_pseudo_id = d.user_pseudo_id and a.ga_session_id = d.ga_session_id
+
