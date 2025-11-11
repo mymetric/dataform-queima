@@ -41,6 +41,7 @@ select
   user_pseudo_id,
   ga_session_id,
 
+  count(distinct case when regexp_contains(page_location, "validate") then concat(user_pseudo_id, ga_session_id) end) validate,
   count(distinct case when regexp_contains(page_location, "planos") then concat(user_pseudo_id, ga_session_id) end) plans,
   count(distinct case when regexp_contains(page_location, "checkout") then concat(user_pseudo_id, ga_session_id) end) checkout,
   count(distinct case when regexp_contains(page_location, "oto\\/nutricional") then concat(user_pseudo_id, ga_session_id) end) upsell_nutricional,
