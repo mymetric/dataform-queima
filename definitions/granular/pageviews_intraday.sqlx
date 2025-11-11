@@ -24,6 +24,11 @@ select
   user_pseudo_id,
   (select value.int_value from unnest(event_params) where key = "ga_session_id") ga_session_id,
   (select value.string_value from unnest(event_params) where key = 'page_location') page_location,
+  (select value.string_value from unnest(event_params) where key = "clicked_details_id") clicked_details_id,
+  (select value.string_value from unnest(event_params) where key = "clicked_details_classes") clicked_details_classes,
+  (select value.string_value from unnest(event_params) where key = "clicked_details_url") clicked_details_url,
+  (select value.string_value from unnest(event_params) where key = "clicked_details_tagName") clicked_details_tag_name,
+  (select value.string_value from unnest(event_params) where key = "clicked_details_text") clicked_details_text,
 
 from `analytics_316501895.events_*`
 
